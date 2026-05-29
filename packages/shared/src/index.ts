@@ -169,8 +169,14 @@ export interface LeaderboardEntry {
 // Nudge / Communication
 // ─────────────────────────────────────────────
 
-export type NudgeChannel = 'email' | 'slack' | 'teams' | 'in_app';
+export type NudgeChannel = 'email' | 'slack' | 'teams' | 'in_app' | 'push';
 export type NudgeStatus = 'pending' | 'sent' | 'opened' | 'clicked' | 'dismissed';
+export type BehavioralProfile =
+  | 'early_adopter'
+  | 'pragmatic'
+  | 'vocal_skeptic'
+  | 'silent'
+  | 'influencer';
 
 export interface Nudge {
   id: string;

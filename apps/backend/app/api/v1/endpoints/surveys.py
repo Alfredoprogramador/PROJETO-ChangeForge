@@ -32,12 +32,9 @@ async def get_survey(survey_id: uuid.UUID, db: DbDep) -> Survey:
 
 @router.post("/", response_model=SurveyResponse, status_code=status.HTTP_201_CREATED)
 async def create_survey(payload: SurveyCreate, db: DbDep) -> Survey:
-    obj = Survey(
-        **payload.model_dump(),
-        questions=[q.model_dump() for q in payload.questions],
-    )
-    # questions already set above; clear duplicates from model_dump
-    obj.questions = [q.model_dump() for q in payload.questions]
+    data = payload.model_dump()
+    data["questions"] = [q.model_dump() for q in payload.questions]
+    obj = Survey(**data)
     db.add(obj)
     await db.commit()
     await db.refresh(obj)
