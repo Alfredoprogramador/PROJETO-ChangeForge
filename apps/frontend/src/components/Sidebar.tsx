@@ -1,5 +1,7 @@
 'use client';
 
+import type { Route } from 'next';
+import type { ComponentType } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -11,7 +13,7 @@ import {
   Network,
 } from 'lucide-react';
 
-const NAV_ITEMS = [
+const NAV_ITEMS: Array<{ href: Route; icon: ComponentType<{ className?: string }>; label: string }> = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/initiatives', icon: Rocket, label: 'Iniciativas' },
   { href: '/surveys', icon: ClipboardList, label: 'Surveys' },

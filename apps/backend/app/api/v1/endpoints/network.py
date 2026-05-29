@@ -9,7 +9,7 @@ router = APIRouter()
 class NodeSchema(BaseModel):
     id: str
     label: str
-    node_type: str   # influencer | adopter | resistant | neutral
+    node_type: str  # influencer | adopter | resistant | neutral
     department: str
     resistance_score: float
 
@@ -32,13 +32,55 @@ async def get_org_network() -> NetworkGraphSchema:
     In production this queries Neo4j for the real ONA graph.
     """
     nodes = [
-        NodeSchema(id="n1", label="Ana Souza", node_type="influencer", department="TI", resistance_score=15.0),
-        NodeSchema(id="n2", label="Carlos Lima", node_type="resistant", department="Vendas", resistance_score=78.0),
-        NodeSchema(id="n3", label="Maria Ferreira", node_type="adopter", department="Vendas", resistance_score=20.0),
-        NodeSchema(id="n4", label="Pedro Costa", node_type="neutral", department="Operações", resistance_score=45.0),
-        NodeSchema(id="n5", label="Lúcia Mendes", node_type="adopter", department="TI", resistance_score=12.0),
-        NodeSchema(id="n6", label="João Alves", node_type="resistant", department="Financeiro", resistance_score=65.0),
-        NodeSchema(id="n7", label="Sofia Rocha", node_type="influencer", department="Marketing", resistance_score=18.0),
+        NodeSchema(
+            id="n1",
+            label="Ana Souza",
+            node_type="influencer",
+            department="TI",
+            resistance_score=15.0,
+        ),
+        NodeSchema(
+            id="n2",
+            label="Carlos Lima",
+            node_type="resistant",
+            department="Vendas",
+            resistance_score=78.0,
+        ),
+        NodeSchema(
+            id="n3",
+            label="Maria Ferreira",
+            node_type="adopter",
+            department="Vendas",
+            resistance_score=20.0,
+        ),
+        NodeSchema(
+            id="n4",
+            label="Pedro Costa",
+            node_type="neutral",
+            department="Operações",
+            resistance_score=45.0,
+        ),
+        NodeSchema(
+            id="n5",
+            label="Lúcia Mendes",
+            node_type="adopter",
+            department="TI",
+            resistance_score=12.0,
+        ),
+        NodeSchema(
+            id="n6",
+            label="João Alves",
+            node_type="resistant",
+            department="Financeiro",
+            resistance_score=65.0,
+        ),
+        NodeSchema(
+            id="n7",
+            label="Sofia Rocha",
+            node_type="influencer",
+            department="Marketing",
+            resistance_score=18.0,
+        ),
     ]
     edges = [
         EdgeSchema(source="n1", target="n2", weight=0.8),

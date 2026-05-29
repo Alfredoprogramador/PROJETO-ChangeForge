@@ -1,7 +1,7 @@
 """Nudge generation and management endpoints."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -46,7 +46,7 @@ async def generate_nudge(payload: NudgeGenerateRequest, db: DbDep) -> Nudge:
         body=content["body"],
         adkar_stage=payload.adkar_stage,
         status="pending",
-        scheduled_at=datetime.now(tz=timezone.utc),
+        scheduled_at=datetime.now(tz=UTC),
     )
     db.add(nudge)
     await db.commit()
@@ -65,9 +65,9 @@ async def update_nudge_status(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nudge not found")
     nudge.status = new_status
     if new_status == "sent":
-        nudge.sent_at = datetime.now(tz=timezone.utc)
+        nudge.sent_at = datetime.now(tz=UTC)
     elif new_status == "opened":
-        nudge.opened_at = datetime.now(tz=timezone.utc)
+        nudge.opened_at = datetime.now(tz=UTC)
     await db.commit()
     await db.refresh(nudge)
     return nudge

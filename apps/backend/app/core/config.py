@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     # Application
     APP_ENV: str = "development"
-    SECRET_KEY: str = "change-me-in-production-please-use-a-long-random-secret"
+    SECRET_KEY: str = "change-me-in-production-please-use-a-long-random-secret"  # noqa: S105
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
 
     # Database – individual components to compose the URL
@@ -18,11 +18,11 @@ class Settings(BaseSettings):
     DB_PORT: int = 5432
     DB_NAME: str = "changeforge"
     DB_USER: str = "changeforge"
-    DB_PASS: str = "changeforge"
+    DB_PASS: str = "changeforge"  # noqa: S105
     DATABASE_POOL_SIZE: int = 10
     DATABASE_MAX_OVERFLOW: int = 20
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def DATABASE_URL(self) -> str:  # noqa: N802
         return f"{self.DB_DRIVER}://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     # Neo4j
     NEO4J_URI: str = "bolt://localhost:7687"
     NEO4J_USER: str = "neo4j"
-    NEO4J_PASSWORD: str = "changeforge"
+    NEO4J_PASSWORD: str = "changeforge"  # noqa: S105
 
     # AI / OpenAI
     OPENAI_API_KEY: str = ""

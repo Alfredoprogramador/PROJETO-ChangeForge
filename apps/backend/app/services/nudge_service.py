@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, cast
+
+from pydantic import SecretStr
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +25,8 @@ ADKAR_PROMPTS: dict[str, str] = {
         "process. Include a practical tip or micro-learning step. Keep it actionable and brief."
     ),
     "ability": (
-        "Write a message that builds ABILITY by encouraging practice. Suggest a specific micro-task "
+        "Write a message that builds ABILITY by encouraging practice. "
+        "Suggest a specific micro-task "
         "the recipient can do in the next 5 minutes to apply their knowledge. Celebrate small wins."
     ),
     "reinforcement": (
@@ -66,8 +69,8 @@ class NudgeService:
         channel: str,
         context: dict[str, Any],
     ) -> dict[str, str]:
-        from langchain_openai import ChatOpenAI  # noqa: PLC0415
         from langchain.schema import HumanMessage, SystemMessage  # noqa: PLC0415
+        from langchain_openai import ChatOpenAI  # noqa: PLC0415
 
         from app.core.config import settings  # noqa: PLC0415
 
@@ -82,13 +85,14 @@ class NudgeService:
             "Respond with JSON: {{\"subject\": \"...\", \"body\": \"...\"}}"
         )
 
-        llm = ChatOpenAI(model=settings.OPENAI_MODEL, api_key=settings.OPENAI_API_KEY)
+        llm = ChatOpenAI(model=settings.OPENAI_MODEL, api_key=SecretStr(settings.OPENAI_API_KEY))
         response = await llm.ainvoke([
             SystemMessage(content=system_prompt),
             HumanMessage(content=user_prompt),
         ])
         import json  # noqa: PLC0415
-        return json.loads(response.content)
+        content = response.content if isinstance(response.content, str) else str(response.content)
+        return cast(dict[str, str], json.loads(content))
 
     def _template_fallback(self, adkar_stage: str, channel: str) -> dict[str, str]:
         templates: dict[str, dict[str, str]] = {

@@ -2,20 +2,25 @@
 
 from __future__ import annotations
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import settings
 
 # Engine and session factory are created lazily on first DB access so that
 # importing the app module in tests (without a running PostgreSQL) does not fail.
-_engine = None
-_AsyncSessionLocal = None
+_engine: AsyncEngine | None = None
+_AsyncSessionLocal: async_sessionmaker[AsyncSession] | None = None
 
 
-def _get_engine():  # type: ignore[return]
+def _get_engine() -> AsyncEngine:
     global _engine  # noqa: PLW0603
     if _engine is None:
         _engine = create_async_engine(
@@ -35,6 +40,9 @@ def _get_session_factory() -> async_sessionmaker[AsyncSession]:
             class_=AsyncSession,
             expire_on_commit=False,
         )
+    if _AsyncSessionLocal is None:
+        msg = "Session factory initialization failed"
+        raise RuntimeError(msg)
     return _AsyncSessionLocal
 
 

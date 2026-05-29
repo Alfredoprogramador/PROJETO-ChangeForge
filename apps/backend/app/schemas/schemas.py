@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
-
 
 # ──────────────────────────────────────────────
 # ADKAR
@@ -33,21 +32,21 @@ class InitiativeCreate(BaseModel):
     status: str = "draft"
     risk_level: str = "medium"
     start_date: datetime
-    end_date: Optional[datetime] = None
+    end_date: datetime | None = None
     departments: list[str] = []
     technologies: list[str] = []
 
 
 class InitiativeUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    status: Optional[str] = None
-    risk_level: Optional[str] = None
-    end_date: Optional[datetime] = None
-    departments: Optional[list[str]] = None
-    technologies: Optional[list[str]] = None
-    adoption_rate: Optional[float] = None
-    adkar_scores: Optional[ADKARScoreSchema] = None
+    name: str | None = None
+    description: str | None = None
+    status: str | None = None
+    risk_level: str | None = None
+    end_date: datetime | None = None
+    departments: list[str] | None = None
+    technologies: list[str] | None = None
+    adoption_rate: float | None = None
+    adkar_scores: ADKARScoreSchema | None = None
 
 
 class InitiativeResponse(BaseModel):
@@ -59,7 +58,7 @@ class InitiativeResponse(BaseModel):
     status: str
     risk_level: str
     start_date: datetime
-    end_date: Optional[datetime]
+    end_date: datetime | None
     owner_id: uuid.UUID
     departments: list[str]
     technologies: list[str]
@@ -78,8 +77,8 @@ class SurveyQuestionSchema(BaseModel):
     id: str
     text: str
     type: str
-    options: Optional[list[str]] = None
-    adkar_stage: Optional[str] = None
+    options: list[str] | None = None
+    adkar_stage: str | None = None
 
 
 class SurveyCreate(BaseModel):
@@ -87,7 +86,7 @@ class SurveyCreate(BaseModel):
     title: str = Field(min_length=3, max_length=300)
     questions: list[SurveyQuestionSchema]
     target_departments: list[str]
-    scheduled_at: Optional[datetime] = None
+    scheduled_at: datetime | None = None
 
 
 class SurveyResponse(BaseModel):
@@ -98,8 +97,8 @@ class SurveyResponse(BaseModel):
     title: str
     questions: list[Any]
     target_departments: list[str]
-    scheduled_at: Optional[datetime]
-    completed_at: Optional[datetime]
+    scheduled_at: datetime | None
+    completed_at: datetime | None
     response_rate: float
     created_at: datetime
 
@@ -114,7 +113,7 @@ class NudgeGenerateRequest(BaseModel):
     recipient_id: uuid.UUID
     channel: str
     adkar_stage: str
-    context: Optional[dict[str, Any]] = None
+    context: dict[str, Any] | None = None
 
 
 class NudgeResponse(BaseModel):
@@ -124,13 +123,13 @@ class NudgeResponse(BaseModel):
     initiative_id: uuid.UUID
     recipient_id: uuid.UUID
     channel: str
-    subject: Optional[str]
+    subject: str | None
     body: str
     adkar_stage: str
     status: str
     scheduled_at: datetime
-    sent_at: Optional[datetime]
-    opened_at: Optional[datetime]
+    sent_at: datetime | None
+    opened_at: datetime | None
     created_at: datetime
 
 

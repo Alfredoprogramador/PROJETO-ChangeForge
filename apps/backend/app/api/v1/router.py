@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import adoption, gamification, initiatives, nudges, network, surveys
+from app.api.v1.endpoints import adoption, gamification, initiatives, network, nudges, surveys
 
 api_router = APIRouter()
 
