@@ -1,0 +1,76 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  id-token: write   # for OIDC AWS auth
+
+jobs:
+  build-and-push:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set image tag
+        id: tag
+        run: echo "tag=${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
+
+      - name: Build & push backend
+        run: |
+          docker build -t $ECR_REGISTRY/changeforge-backend:${{ steps.tag.outputs.tag }} apps/backend/
+          docker push $ECR_REGISTRY/changeforge-backend:${{ steps.tag.outputs.tag }}
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+
+      - name: Build & push frontend
+        run: |
+          docker build -t $ECR_REGISTRY/changeforge-frontend:${{ steps.tag.outputs.tag }} apps/frontend/
+          docker push $ECR_REGISTRY/changeforge-frontend:${{ steps.tag.outputs.tag }}
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+
+      - name: Build & push nudge-engine
+        run: |
+          docker build -t $ECR_REGISTRY/changeforge-nudge-engine:${{ steps.tag.outputs.tag }} apps/nudge-engine/
+          docker push $ECR_REGISTRY/changeforge-nudge-engine:${{ steps.tag.outputs.tag }}
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+
+  deploy:
+    name: Deploy to Kubernetes (ArgoCD)
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update image tags in manifests
+        run: |
+          TAG=${GITHUB_SHA::8}
+          sed -i "s|changeforge/backend:latest|${{ secrets.ECR_REGISTRY }}/changeforge-backend:${TAG}|g" infra/kubernetes/base/backend.yaml
+          sed -i "s|changeforge/frontend:latest|${{ secrets.ECR_REGISTRY }}/changeforge-frontend:${TAG}|g" infra/kubernetes/base/frontend.yaml
+          sed -i "s|changeforge/nudge-engine:latest|${{ secrets.ECR_REGISTRY }}/changeforge-nudge-engine:${TAG}|g" infra/kubernetes/base/nudge-engine.yaml
+
+      - name: Sync ArgoCD application
+        run: |
+          argocd app sync changeforge \
+            --server ${{ secrets.ARGOCD_SERVER }} \
+            --auth-token ${{ secrets.ARGOCD_TOKEN }} \
+            --wait
